@@ -6,7 +6,7 @@ reports_db = {}
 next_report_id = 1
 
 class Report:
-    def __init__(self, title: str, user_id: int, company: str, data: Dict[str, Any]):
+    def __init__(self, title: str, user_id: int, company: str, data: Dict[str, Any], spend_score: Optional[int] = None, insights: Optional[Dict[str, Any]] = None):
         global next_report_id
         self.id = next_report_id
         next_report_id += 1
@@ -17,8 +17,8 @@ class Report:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
         self.status = 'completed'
-        self.spend_score = self._calculate_mock_score()
-        self.insights = self._generate_mock_insights()
+        self.spend_score = spend_score if spend_score is not None else self._calculate_mock_score()
+        self.insights = insights if insights is not None else self._generate_mock_insights()
         
     def _calculate_mock_score(self) -> int:
         """Generate a mock SpendScore for demonstration"""
@@ -55,9 +55,9 @@ class Report:
             'insights': self.insights
         }
 
-def create_report(title: str, user_id: int, company: str, data: Dict[str, Any]) -> Report:
+def create_report(title: str, user_id: int, company: str, data: Dict[str, Any], spend_score: Optional[int] = None, insights: Optional[Dict[str, Any]] = None) -> Report:
     """Create a new report"""
-    report = Report(title, user_id, company, data)
+    report = Report(title, user_id, company, data, spend_score, insights)
     reports_db[report.id] = report
     return report
 
