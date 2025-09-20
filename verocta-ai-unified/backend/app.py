@@ -75,6 +75,12 @@ allowed_origins = [
     "https://*.netlify.app"  # Netlify deployments
 ]
 
+# Add Replit domain if available
+replit_domain = os.environ.get("REPLIT_DEV_DOMAIN")
+if replit_domain:
+    allowed_origins.append(f"https://{replit_domain}")
+    allowed_origins.append(f"http://{replit_domain}")
+
 # Add custom domain if provided
 custom_domain = os.environ.get("CUSTOM_DOMAIN")
 if custom_domain:
@@ -86,6 +92,11 @@ allowed_origins = list(set([origin for origin in allowed_origins if origin]))
 
 CORS(app, resources={
     r"/api/*": {
+        "origins": allowed_origins,
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Accept"]
+    },
+    r"/*": {
         "origins": allowed_origins,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Accept"]
