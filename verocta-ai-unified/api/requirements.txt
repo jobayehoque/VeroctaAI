@@ -1,0 +1,29 @@
+# Vercel Python Serverless Functions Requirements
+# Core dependencies for API functions
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Date handling
+python-dateutil>=2.8.0
+
+# JSON handling (built-in, but explicit for clarity)
+# json - built-in
+
+# HTTP handling (built-in)
+# http.server - built-in
+
+# File handling (built-in)
+# os - built-in
+# tempfile - built-in
+
+# Logging (built-in)
+# logging - built-in
+
+# URL parsing (built-in)
+# urllib.parse - built-in
+
+# Note: Some heavy dependencies like matplotlib, reportlab, openai
+# are excluded for serverless optimization
+# These features are simplified or disabled in Vercel deployment

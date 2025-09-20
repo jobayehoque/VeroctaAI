@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "name": "verocta-ai",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "api/**/*.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/$1"
+    }
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "FLASK_ENV": "production",
+    "PYTHONPATH": "/var/task"
+  },
+  "build": {
+    "env": {
+      "NODE_VERSION": "18"
+    }
+  }
+}
