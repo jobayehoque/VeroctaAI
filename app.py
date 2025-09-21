@@ -28,6 +28,13 @@ except ImportError:
 except Exception as e:
     logging.error(f"Error loading .env file: {e}")
 
+# Debug: Log all environment variables that start with common prefixes
+logging.info("=== Environment Variables Debug ===")
+for key, value in os.environ.items():
+    if any(key.startswith(prefix) for prefix in ['SESSION', 'FLASK', 'PYTHON', 'SUPABASE', 'OPENAI']):
+        logging.info(f"{key}: {'SET' if value else 'EMPTY'}")
+logging.info("=== End Environment Variables Debug ===")
+
 # Frontend build directory - simplified path
 frontend_build_dir = os.path.join(basedir, 'frontend', 'dist')
 
@@ -36,9 +43,17 @@ app = Flask(__name__,
             static_folder=frontend_build_dir,
             static_url_path='',
             template_folder=os.path.join(basedir, 'templates'))
-app.secret_key = os.environ.get("SESSION_SECRET")
-if not app.secret_key:
-    raise ValueError("SESSION_SECRET environment variable is required")
+# Set secret key with fallback for deployment
+session_secret = os.environ.get("SESSION_SECRET")
+logging.info(f"SESSION_SECRET environment variable: {'SET' if session_secret else 'NOT SET'}")
+if not session_secret:
+    # Generate a fallback secret for production deployment
+    import secrets
+    session_secret = secrets.token_hex(32)
+    logging.warning("SESSION_SECRET not found, using generated fallback secret")
+
+app.secret_key = session_secret
+logging.info("Flask app secret key configured successfully")
 
 # Configure database connection securely using environment variables only
 supabase_url = os.environ.get("SUPABASE_URL")
