@@ -3,22 +3,16 @@
 
 services:
   - type: web
-    name: verocta-ai
+    name: verocta-ai-api
     env: python
     plan: starter
     region: oregon
     branch: main
     buildCommand: |
-      echo "🚀 Starting VeroctaAI deployment..."
+      echo "🚀 Starting VeroctaAI API deployment..."
       echo "📦 Installing Python dependencies..."
       pip install -r requirements.txt
-      echo "📦 Installing Node.js dependencies..."
-      cd frontend && npm install
-      echo "🏗️ Building frontend..."
-      npm run build
-      echo "📁 Checking build output..."
-      ls -la frontend/dist/ || echo "⚠️ Frontend dist directory not found"
-      echo "✅ Build complete!"
+      echo "✅ Backend API build complete!"
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app
     envVars:
       - key: FLASK_ENV

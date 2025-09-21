@@ -35,13 +35,8 @@ for key, value in os.environ.items():
         logging.info(f"{key}: {'SET' if value else 'EMPTY'}")
 logging.info("=== End Environment Variables Debug ===")
 
-# Frontend build directory - simplified path
-frontend_build_dir = os.path.join(basedir, 'frontend', 'dist')
-
-# Create the Flask app
+# Create the Flask app for API-only service
 app = Flask(__name__,
-            static_folder=frontend_build_dir,
-            static_url_path='',
             template_folder=os.path.join(basedir, 'templates'))
 # Set secret key with fallback for deployment
 session_secret = os.environ.get("SESSION_SECRET")
@@ -121,61 +116,118 @@ except ImportError:
     
 @app.route('/')
 def index():
-    index_path = os.path.join(frontend_build_dir, 'index.html')
-    if os.path.exists(index_path):
-        return send_file(index_path)
-    else:
-        # Fallback HTML when frontend build is missing
-        return """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>VeroctaAI - AI-Powered Financial Intelligence</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
-                .container { max-width: 800px; margin: 0 auto; text-align: center; }
-                .logo { font-size: 3em; font-weight: bold; margin-bottom: 20px; }
-                .subtitle { font-size: 1.2em; margin-bottom: 30px; opacity: 0.9; }
-                .status { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }
-                .api-status { color: #4ade80; font-weight: bold; }
-                .build-status { color: #fbbf24; font-weight: bold; }
-                .btn { background: #4ade80; color: white; padding: 12px 24px; border: none; border-radius: 6px; text-decoration: none; display: inline-block; margin: 10px; }
-                .btn:hover { background: #22c55e; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="logo">🚀 VeroctaAI</div>
+    # API Service Landing Page
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VeroctaAI API - AI-Powered Financial Intelligence</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
+            .container { max-width: 900px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 40px; }
+            .logo { font-size: 3.5em; font-weight: bold; margin-bottom: 10px; }
+            .subtitle { font-size: 1.3em; opacity: 0.9; margin-bottom: 20px; }
+            .version { font-size: 0.9em; opacity: 0.7; }
+            .section { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; margin: 20px 0; backdrop-filter: blur(10px); }
+            .section h3 { margin-top: 0; color: #4ade80; }
+            .endpoint { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Courier New', monospace; }
+            .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-right: 10px; }
+            .get { background: #4ade80; color: black; }
+            .post { background: #3b82f6; color: white; }
+            .btn { background: #4ade80; color: white; padding: 12px 24px; border: none; border-radius: 6px; text-decoration: none; display: inline-block; margin: 10px; transition: all 0.3s; }
+            .btn:hover { background: #22c55e; transform: translateY(-2px); }
+            .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #4ade80; margin-right: 8px; }
+            .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+            .feature { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; text-align: center; }
+            .feature-icon { font-size: 2em; margin-bottom: 10px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">🚀 VeroctaAI API</div>
                 <div class="subtitle">AI-Powered Financial Intelligence & Analytics</div>
-                
-                <div class="status">
-                    <h3>System Status</h3>
-                    <p class="api-status">✅ Backend API: Running</p>
-                    <p class="build-status">⚠️ Frontend: Building...</p>
-                    <p>📊 Platform: Ready for Financial Analysis</p>
+                <div class="version">API Service v2.0 | Backend Only</div>
+            </div>
+            
+            <div class="section">
+                <h3><span class="status-indicator"></span>Service Status</h3>
+                <p><strong>✅ API Service:</strong> Running and Ready</p>
+                <p><strong>🔗 Base URL:</strong> <code>https://veroctaai.onrender.com/api</code></p>
+                <p><strong>📊 Status:</strong> All endpoints operational</p>
+            </div>
+            
+            <div class="section">
+                <h3>🔗 Core API Endpoints</h3>
+                <div class="endpoint">
+                    <span class="method get">GET</span> /api/health - Health check and system status
                 </div>
-                
-                <div>
-                    <h3>Available Services</h3>
-                    <a href="/api/health" class="btn">Health Check</a>
-                    <a href="/api/docs" class="btn">API Documentation</a>
+                <div class="endpoint">
+                    <span class="method get">GET</span> /api/docs - API documentation
                 </div>
-                
-                <div style="margin-top: 40px; opacity: 0.8;">
-                    <p>Frontend is currently building. Please refresh in a few moments.</p>
-                    <p>If this persists, check the build logs in your deployment dashboard.</p>
+                <div class="endpoint">
+                    <span class="method post">POST</span> /api/auth/login - User authentication
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span> /api/auth/register - User registration
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span> /api/upload - File upload for analysis
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span> /api/spend-score - Generate spend analysis
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span> /api/reports - List user reports
                 </div>
             </div>
             
-            <script>
-                // Auto-refresh every 30 seconds
-                setTimeout(() => location.reload(), 30000);
-            </script>
-        </body>
-        </html>
-        """, 200, {'Content-Type': 'text/html'}
+            <div class="section">
+                <h3>🎯 Key Features</h3>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">📊</div>
+                        <h4>Financial Analysis</h4>
+                        <p>AI-powered spend analysis and insights</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📁</div>
+                        <h4>File Processing</h4>
+                        <p>CSV upload and data processing</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔐</div>
+                        <h4>Authentication</h4>
+                        <p>Secure JWT-based user management</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📈</div>
+                        <h4>Reports</h4>
+                        <p>Generate and download financial reports</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>🚀 Quick Actions</h3>
+                <a href="/api/health" class="btn">Check Health</a>
+                <a href="/api/docs" class="btn">View Documentation</a>
+                <a href="https://github.com/your-repo" class="btn">GitHub Repository</a>
+            </div>
+            
+            <div class="section">
+                <h3>📖 Integration Guide</h3>
+                <p><strong>For Frontend Integration:</strong></p>
+                <p>Set your frontend environment variable: <code>VITE_API_URL=https://veroctaai.onrender.com/api</code></p>
+                <p>All API endpoints are CORS-enabled and ready for frontend consumption.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, 200, {'Content-Type': 'text/html'}
     
     @app.route('/api/health')
     def health():
@@ -189,55 +241,45 @@ def index():
                 "error": str(e)
             })
 
-# Serve React app for all non-API routes
+# API-only service - redirect non-API routes to main page
 @app.route('/<path:path>')
-def serve_react_app(path):
+def handle_unknown_routes(path):
     if path.startswith('api/'):
-        return jsonify({"error": "API endpoint not found"}), 404
+        return jsonify({"error": "API endpoint not found", "available_endpoints": [
+            "/api/health", "/api/docs", "/api/auth/login", "/api/auth/register",
+            "/api/upload", "/api/spend-score", "/api/reports"
+        ]}), 404
     
-    # Check if it's a file request
-    if '.' in path:
-        try:
-            return send_from_directory(frontend_build_dir, path)
-        except:
-            pass
-    
-    # For all other routes, serve the React app or fallback
-    index_path = os.path.join(frontend_build_dir, 'index.html')
-    if os.path.exists(index_path):
-        try:
-            return send_file(index_path)
-        except:
-            pass
-    
-    # Fallback when frontend is not available
+    # Redirect all other routes to the main API landing page
     return """
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>VeroctaAI - Frontend Building</title>
+        <title>VeroctaAI API - Page Not Found</title>
         <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
-            .container { max-width: 600px; margin: 0 auto; text-align: center; }
-            .logo { font-size: 2.5em; font-weight: bold; margin-bottom: 20px; }
-            .message { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }
+            body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .container { text-align: center; max-width: 600px; }
+            .logo { font-size: 3em; font-weight: bold; margin-bottom: 20px; }
+            .message { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 20px 0; }
+            .btn { background: #4ade80; color: white; padding: 12px 24px; border: none; border-radius: 6px; text-decoration: none; display: inline-block; margin: 10px; }
         </style>
     </head>
     <body>
         <div class="container">
-            <div class="logo">🚀 VeroctaAI</div>
+            <div class="logo">🚀 VeroctaAI API</div>
             <div class="message">
-                <h3>Frontend Building...</h3>
-                <p>The frontend is currently being built. Please wait a moment and refresh the page.</p>
-                <p>If this persists, check the build logs in your deployment dashboard.</p>
+                <h3>Page Not Found</h3>
+                <p>This is an API-only service. The requested page doesn't exist.</p>
+                <p>Please use the API endpoints or return to the main page.</p>
             </div>
+            <a href="/" class="btn">← Back to API Home</a>
+            <a href="/api/health" class="btn">Check API Health</a>
         </div>
-        <script>setTimeout(() => location.reload(), 10000);</script>
     </body>
     </html>
-    """, 200, {'Content-Type': 'text/html'}
+    """, 404
 
 if __name__ == '__main__':
     # Production configuration
@@ -246,10 +288,11 @@ if __name__ == '__main__':
     host = '0.0.0.0'  # Always use 0.0.0.0 for Render compatibility
     debug = not is_production
     
-    print('🚀 Starting VeroctaAI Flask Application...')
+    print('🚀 Starting VeroctaAI API Service...')
     print(f'📍 URL: http://{host}:{port}')
-    print('📊 Platform: AI-Powered Financial Intelligence & Analytics')
+    print('📊 Platform: AI-Powered Financial Intelligence & Analytics API')
     print(f'🔧 Environment: {"Production" if is_production else "Development"}')
+    print('🌐 Service Type: Backend API Only')
 
     # Check OpenAI API key
     openai_key = os.environ.get("OPENAI_API_KEY")
