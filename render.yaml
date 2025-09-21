@@ -1,0 +1,56 @@
+# VeroctaAI - Render Deployment Configuration
+# Optimized for easy deployment with GitHub integration
+
+services:
+  - type: web
+    name: verocta-ai
+    env: python
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: |
+      echo "🚀 Starting VeroctaAI deployment..."
+      echo "📦 Installing Python dependencies..."
+      pip install -r requirements.txt
+      echo "📦 Installing Node.js dependencies..."
+      cd frontend && npm install
+      echo "🏗️ Building frontend..."
+      npm run build
+      echo "✅ Build complete!"
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PASSWORD
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: CUSTOM_DOMAIN
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: POSTMARK_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true
+    pullRequestPreviewsEnabled: false

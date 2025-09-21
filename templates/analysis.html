@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Analysis Results - Verocta{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i data-feather="trending-up" class="me-2"></i>
+                        Financial Analysis Results
+                    </h1>
+                    <p class="text-muted mb-0">
+                        <i data-feather="file" class="me-1"></i>
+                        Analysis for: <strong>{{ analysis.filename }}</strong>
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary me-2">
+                        <i data-feather="upload" class="me-1"></i>
+                        New Analysis
+                    </a>
+                    {% if pdf_available %}
+                    <a href="{{ url_for('download_pdf') }}" class="btn btn-success">
+                        <i data-feather="download" class="me-1"></i>
+                        Download PDF
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SpendScore Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card spend-score-card border-0 shadow-lg">
+                <div class="card-body text-center py-5">
+                    <h2 class="card-title mb-4">Your SpendScore</h2>
+                    
+                    <!-- Score Display -->
+                    <div class="score-display mb-4">
+                        <div class="score-circle score-{{ analysis.score_color.lower() }}">
+                            <span class="score-number">{{ "%.1f"|format(analysis.spend_score) }}</span>
+                            <span class="score-max">/100</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Score Badge -->
+                    <div class="mb-3">
+                        <span class="badge badge-{{ analysis.score_color.lower() }} badge-lg">
+                            {% if analysis.score_color == 'Green' %}
+                                🟩 {{ analysis.score_label }} ({{ analysis.score_color }})
+                            {% elif analysis.score_color == 'Amber' %}
+                                🟧 {{ analysis.score_label }} ({{ analysis.score_color }})
+                            {% else %}
+                                🟥 {{ analysis.score_label }} ({{ analysis.score_color }})
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <!-- Score Explanation -->
+                    <p class="score-explanation text-muted mb-0">
+                        {% if analysis.score_color == 'Green' %}
+                            Excellent financial management! Your spending patterns show great discipline and optimization.
+                        {% elif analysis.score_color == 'Amber' %}
+                            Good financial health with room for improvement. Consider the recommendations below.
+                        {% else %}
+                            Your spending patterns need attention. Focus on the high-priority recommendations.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="hash" class="text-primary"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-value">{{ "{:,}".format(analysis.total_transactions) }}</h3>
+                    <p class="metric-label">Total Transactions</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="dollar-sign" class="text-success"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-value">${{ "{:,.2f}".format(analysis.total_amount) }}</h3>
+                    <p class="metric-label">Total Amount</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="trending-up" class="text-info"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-value">${{ "{:,.2f}".format(analysis.total_amount / analysis.total_transactions) }}</h3>
+                    <p class="metric-label">Average Transaction</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i data-feather="award" class="text-warning"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-value">{{ "%.0f"|format(analysis.spend_score) }}/100</h3>
+                    <p class="metric-label">Health Score</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Recommendations -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i data-feather="cpu" class="me-2"></i>
+                        AI-Powered Recommendations
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Our AI has analyzed your spending patterns and identified the following optimization opportunities:
+                    </p>
+                    
+                    <div class="recommendations">
+                        {% for suggestion in analysis.suggestions %}
+                        <div class="recommendation-item mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="priority-badge priority-{{ suggestion.priority.lower() }} me-3">
+                                    <span class="priority-text">{{ suggestion.priority }}</span>
+                                </div>
+                                <div class="recommendation-content flex-grow-1">
+                                    <p class="recommendation-text mb-0">{{ suggestion.text }}</p>
+                                </div>
+                                <div class="priority-icon">
+                                    {% if suggestion.priority == 'High' %}
+                                        <i data-feather="alert-circle" class="text-danger"></i>
+                                    {% elif suggestion.priority == 'Medium' %}
+                                        <i data-feather="alert-triangle" class="text-warning"></i>
+                                    {% else %}
+                                        <i data-feather="info" class="text-info"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>   
+    </div>
+
+    <!-- Action Items -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">
+                        <i data-feather="check-circle" class="me-2"></i>
+                        Immediate Actions
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <ul class="action-list">
+                        {% for suggestion in analysis.suggestions %}
+                            {% if suggestion.priority == 'High' %}
+                            <li class="action-item high-priority">
+                                <i data-feather="zap" class="me-2 text-danger"></i>
+                                {{ suggestion.text }}
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% for suggestion in analysis.suggestions %}
+                            {% if suggestion.priority == 'Medium' %}
+                            <li class="action-item medium-priority">
+                                <i data-feather="clock" class="me-2 text-warning"></i>
+                                {{ suggestion.text }}
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card border-0 shadow h-100">
+                <div class="card-header bg-info text-white">
+                    <h4 class="card-title mb-0">
+                        <i data-feather="lightbulb" class="me-2"></i>
+                        Additional Insights
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="insight-item mb-3">
+                        <h6 class="fw-bold text-primary">Score Improvement Tips</h6>
+                        <p class="text-muted mb-0">
+                            {% if analysis.score_color == 'Green' %}
+                                Maintain your excellent spending discipline and continue monitoring for any unusual patterns.
+                            {% elif analysis.score_color == 'Amber' %}
+                                Focus on the high-priority recommendations to improve your score to the green zone (80+).
+                            {% else %}
+                                Implement all recommendations systematically, starting with high-priority items for maximum impact.
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="insight-item mb-3">
+                        <h6 class="fw-bold text-primary">Data Quality</h6>
+                        <p class="text-muted mb-0">
+                            Analysis based on {{ "{:,}".format(analysis.total_transactions) }} transactions 
+                            totaling ${{ "{:,.2f}".format(analysis.total_amount) }}.
+                        </p>
+                    </div>
+                    
+                    <div class="insight-item">
+                        <h6 class="fw-bold text-primary">Next Steps</h6>
+                        <p class="text-muted mb-0">
+                            Download the comprehensive PDF report for detailed breakdowns and share with your financial team.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="row">
+        <div class="col">
+            <div class="card border-0 shadow bg-gradient-primary text-white">
+                <div class="card-body text-center py-4">
+                    <h4 class="card-title mb-3">Ready to Optimize Your Spending?</h4>
+                    <p class="card-text mb-4">
+                        Take action on these recommendations to improve your financial health score and reduce unnecessary expenses.
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center">
+                        {% if pdf_available %}
+                        <a href="{{ url_for('download_pdf') }}" class="btn btn-light">
+                            <i data-feather="download" class="me-1"></i>
+                            Get Full Report
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                            <i data-feather="upload" class="me-1"></i>
+                            Analyze Another File
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Initialize feather icons for dynamically loaded content
+feather.replace();
+
+// Add animation to score circle
+document.addEventListener('DOMContentLoaded', function() {
+    const scoreCircle = document.querySelector('.score-circle');
+    if (scoreCircle) {
+        setTimeout(() => {
+            scoreCircle.classList.add('animate');
+        }, 500);
+    }
+});
+</script>
+{% endblock %}
