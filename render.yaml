@@ -24,7 +24,7 @@ services:
       - key: PYTHONPATH
         value: /opt/render/project/src
       - key: SESSION_SECRET
-        generateValue: true
+        value: verocta-production-secret-key-2024-change-in-production
       - key: OPENAI_API_KEY
         sync: false
       - key: SUPABASE_URL
