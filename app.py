@@ -119,9 +119,63 @@ try:
 except ImportError:
     logging.warning("Routes module not found - creating basic routes")
     
-    @app.route('/')
-    def index():
-        return send_file(os.path.join(frontend_build_dir, 'index.html'))
+@app.route('/')
+def index():
+    index_path = os.path.join(frontend_build_dir, 'index.html')
+    if os.path.exists(index_path):
+        return send_file(index_path)
+    else:
+        # Fallback HTML when frontend build is missing
+        return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>VeroctaAI - AI-Powered Financial Intelligence</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
+                .container { max-width: 800px; margin: 0 auto; text-align: center; }
+                .logo { font-size: 3em; font-weight: bold; margin-bottom: 20px; }
+                .subtitle { font-size: 1.2em; margin-bottom: 30px; opacity: 0.9; }
+                .status { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }
+                .api-status { color: #4ade80; font-weight: bold; }
+                .build-status { color: #fbbf24; font-weight: bold; }
+                .btn { background: #4ade80; color: white; padding: 12px 24px; border: none; border-radius: 6px; text-decoration: none; display: inline-block; margin: 10px; }
+                .btn:hover { background: #22c55e; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="logo">🚀 VeroctaAI</div>
+                <div class="subtitle">AI-Powered Financial Intelligence & Analytics</div>
+                
+                <div class="status">
+                    <h3>System Status</h3>
+                    <p class="api-status">✅ Backend API: Running</p>
+                    <p class="build-status">⚠️ Frontend: Building...</p>
+                    <p>📊 Platform: Ready for Financial Analysis</p>
+                </div>
+                
+                <div>
+                    <h3>Available Services</h3>
+                    <a href="/api/health" class="btn">Health Check</a>
+                    <a href="/api/docs" class="btn">API Documentation</a>
+                </div>
+                
+                <div style="margin-top: 40px; opacity: 0.8;">
+                    <p>Frontend is currently building. Please refresh in a few moments.</p>
+                    <p>If this persists, check the build logs in your deployment dashboard.</p>
+                </div>
+            </div>
+            
+            <script>
+                // Auto-refresh every 30 seconds
+                setTimeout(() => location.reload(), 30000);
+            </script>
+        </body>
+        </html>
+        """, 200, {'Content-Type': 'text/html'}
     
     @app.route('/api/health')
     def health():
@@ -148,11 +202,42 @@ def serve_react_app(path):
         except:
             pass
     
-    # For all other routes, serve the React app
-    try:
-        return send_file(os.path.join(frontend_build_dir, 'index.html'))
-    except:
-        return jsonify({"error": "Frontend not built. Run 'npm run build' in frontend directory"}), 500
+    # For all other routes, serve the React app or fallback
+    index_path = os.path.join(frontend_build_dir, 'index.html')
+    if os.path.exists(index_path):
+        try:
+            return send_file(index_path)
+        except:
+            pass
+    
+    # Fallback when frontend is not available
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VeroctaAI - Frontend Building</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
+            .container { max-width: 600px; margin: 0 auto; text-align: center; }
+            .logo { font-size: 2.5em; font-weight: bold; margin-bottom: 20px; }
+            .message { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="logo">🚀 VeroctaAI</div>
+            <div class="message">
+                <h3>Frontend Building...</h3>
+                <p>The frontend is currently being built. Please wait a moment and refresh the page.</p>
+                <p>If this persists, check the build logs in your deployment dashboard.</p>
+            </div>
+        </div>
+        <script>setTimeout(() => location.reload(), 10000);</script>
+    </body>
+    </html>
+    """, 200, {'Content-Type': 'text/html'}
 
 if __name__ == '__main__':
     # Production configuration

@@ -16,6 +16,8 @@ services:
       cd frontend && npm install
       echo "🏗️ Building frontend..."
       npm run build
+      echo "📁 Checking build output..."
+      ls -la frontend/dist/ || echo "⚠️ Frontend dist directory not found"
       echo "✅ Build complete!"
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 app:app
     envVars:
