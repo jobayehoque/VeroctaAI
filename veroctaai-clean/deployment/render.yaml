@@ -1,0 +1,44 @@
+# VeroctaAI - Render Deployment Configuration
+# Optimized for easy deployment with GitHub integration
+
+services:
+  - type: web
+    name: veroctaai-api
+    env: python
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: |
+      echo "🚀 Starting VeroctaAI API deployment..."
+      echo "📦 Installing Python dependencies..."
+      cd backend && pip install -r requirements.txt
+      echo "✅ Backend API build complete!"
+    startCommand: cd backend && gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 main:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHONPATH
+        value: /opt/render/project/src/backend
+      - key: SESSION_SECRET
+        value: verocta-production-secret-key-2024-change-in-production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PASSWORD
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: CUSTOM_DOMAIN
+        sync: false
+      - key: JWT_SECRET_KEY
+        value: verocta-jwt-secret-key-2024-production
+      - key: MAX_CONTENT_LENGTH
+        value: 16777216
+      - key: UPLOAD_FOLDER
+        value: uploads
+      - key: OUTPUT_FOLDER
+        value: outputs
+    healthCheckPath: /api/health
+    autoDeploy: true
+    pullRequestPreviewsEnabled: false
