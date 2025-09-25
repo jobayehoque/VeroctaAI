@@ -1,4 +1,4 @@
-# 🚀 VeroctaAI - AI-Powered Financial Intelligence API
+# 🚀 VeroctaAI - AI-Powered Financial Intelligence Platform
 
 [![API Version](https://img.shields.io/badge/API-v2.0.0-blue.svg)](https://veroctaai.onrender.com/api/docs)
 [![Python](https://img.shields.io/badge/Python-3.13-green.svg)](https://python.org)
@@ -7,7 +7,40 @@
 
 > **Transform your financial data into actionable insights with AI-powered analysis**
 
-VeroctaAI is a comprehensive financial intelligence platform that analyzes business expenses, generates SpendScores, and provides AI-powered recommendations for cost optimization. Built as a robust backend API service, it's designed for seamless integration with any frontend application.
+VeroctaAI is a comprehensive financial intelligence platform that analyzes business expenses, generates SpendScores, and provides AI-powered recommendations for cost optimization. Built with a clean, professional architecture for easy deployment and integration.
+
+## 🏗️ Project Structure
+
+```
+veroctaai-clean/
+├── backend/                    # Backend API service
+│   ├── app/                   # Flask application
+│   │   ├── api/              # API blueprints
+│   │   ├── models/           # Data models
+│   │   └── middleware/        # Custom middleware
+│   ├── core/                 # Core business logic
+│   │   ├── auth/             # Authentication service
+│   │   ├── analysis/         # Financial analysis
+│   │   └── file_processing/  # CSV processing
+│   ├── services/             # External services
+│   │   ├── database/         # Database service
+│   │   ├── ai/               # AI integration
+│   │   └── spend_score/      # SpendScore engine
+│   ├── utils/                # Utilities
+│   │   ├── validators/       # Input validation
+│   │   ├── helpers/          # Helper functions
+│   │   └── constants/        # Application constants
+│   ├── config/               # Configuration files
+│   ├── main.py              # Application entry point
+│   └── requirements.txt     # Python dependencies
+├── frontend/                 # Frontend application (optional)
+├── deployment/              # Deployment configurations
+│   ├── Dockerfile           # Docker configuration
+│   ├── docker-compose.yml   # Docker Compose setup
+│   └── render.yaml          # Render.com deployment
+├── docs/                    # Documentation
+└── scripts/                 # Utility scripts
+```
 
 ## 🌟 Key Features
 
@@ -45,11 +78,12 @@ VeroctaAI is a comprehensive financial intelligence platform that analyzes busin
 1. **Clone the repository**
    ```bash
    git clone https://github.com/your-username/veroctaai.git
-   cd veroctaai
+   cd veroctaai-clean
    ```
 
 2. **Install dependencies**
    ```bash
+   cd backend
    pip install -r requirements.txt
    ```
 
@@ -61,7 +95,7 @@ VeroctaAI is a comprehensive financial intelligence platform that analyzes busin
 
 4. **Run the application**
    ```bash
-   python app.py
+   python main.py
    ```
 
 The API will be available at `http://localhost:5000`
@@ -75,7 +109,7 @@ The API will be available at `http://localhost:5000`
 
 ### Analysis & Processing
 - `POST /api/upload` - Upload CSV file for analysis
-- `POST /api/spend-score` - Generate SpendScore analysis
+- `GET /api/spend-score` - Generate SpendScore analysis
 - `GET /api/reports` - List user reports
 - `GET /api/reports/{id}/pdf` - Download PDF report
 
@@ -97,44 +131,46 @@ The API will be available at `http://localhost:5000`
 | `SUPABASE_ANON_KEY` | Supabase anonymous key | No | - |
 | `FLASK_ENV` | Flask environment | No | development |
 
-### Supported File Formats
+## 🐳 Docker Deployment
 
-| Format | Description | Sample Columns |
-|--------|-------------|----------------|
-| **QuickBooks** | QuickBooks CSV export | Date, Description, Amount, Category |
-| **Wave** | Wave Accounting CSV | Transaction Date, Description, Amount |
-| **Revolut** | Revolut Business CSV | Started Date, Description, Amount |
-| **Xero** | Xero CSV export | Date, Description, Amount |
-| **Generic** | Custom CSV format | Auto-detected columns |
+### Build and Run
+```bash
+# Build Docker image
+docker build -f deployment/Dockerfile -t veroctaai-api .
 
-## 🏗️ Architecture
-
-### System Components
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend API   │    │   External      │
-│   (Any Client)  │◄──►│   (Flask)       │◄──►│   Services      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │   Data Storage   │
-                       │   (Supabase/    │
-                       │    In-Memory)   │
-                       └─────────────────┘
+# Run container
+docker run -p 5000:5000 \
+  -e SESSION_SECRET=your-secret \
+  -e OPENAI_API_KEY=your-key \
+  veroctaai-api
 ```
 
-### Core Modules
+### Docker Compose
+```bash
+# Run with Docker Compose
+docker-compose -f deployment/docker-compose.yml up -d
+```
 
-- **`app.py`** - Main Flask application and routing
-- **`routes.py`** - API endpoint definitions
-- **`auth.py`** - Authentication and user management
-- **`spend_score_engine.py`** - Financial analysis engine
-- **`gpt_utils.py`** - AI-powered insights generation
-- **`csv_parser.py`** - File parsing and data processing
-- **`pdf_generator.py`** - Report generation
-- **`database.py`** - Database operations
+## 🌐 Platform Deployment
+
+### Render.com
+1. Connect your GitHub repository
+2. Use the provided `deployment/render.yaml`
+3. Set environment variables in Render dashboard
+4. Deploy automatically
+
+### Heroku
+```bash
+# Create Heroku app
+heroku create veroctaai-api
+
+# Set environment variables
+heroku config:set FLASK_ENV=production
+heroku config:set SESSION_SECRET=your-secret
+
+# Deploy
+git push heroku main
+```
 
 ## 📊 SpendScore Algorithm
 
@@ -172,87 +208,24 @@ const uploadFile = async (file) => {
   
   return response.json();
 };
-
-// Example: Get SpendScore
-const getSpendScore = async () => {
-  const response = await fetch(`${API_BASE_URL}/spend-score`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-  
-  return response.json();
-};
-```
-
-### Environment Configuration
-
-```bash
-# Frontend .env file
-VITE_API_URL=https://veroctaai.onrender.com/api
-VITE_APP_NAME=VeroctaAI
-VITE_APP_VERSION=2.0.0
-```
-
-## 🚀 Deployment
-
-### Render.com Deployment
-
-1. **Connect your GitHub repository**
-2. **Configure environment variables**
-3. **Deploy automatically**
-
-The service will be available at: `https://veroctaai.onrender.com`
-
-### Docker Deployment
-
-```bash
-# Build Docker image
-docker build -t veroctaai-api .
-
-# Run container
-docker run -p 5000:5000 \
-  -e SESSION_SECRET=your-secret \
-  -e OPENAI_API_KEY=your-key \
-  veroctaai-api
-```
-
-## 📈 Usage Examples
-
-### 1. Upload and Analyze CSV
-
-```bash
-curl -X POST https://veroctaai.onrender.com/api/upload \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "file=@expenses.csv"
-```
-
-### 2. Get SpendScore Analysis
-
-```bash
-curl -X GET https://veroctaai.onrender.com/api/spend-score \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-### 3. Download PDF Report
-
-```bash
-curl -X GET https://veroctaai.onrender.com/api/reports/123/pdf \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -o report.pdf
 ```
 
 ## 🧪 Testing
 
 ### Health Check
-
 ```bash
 curl https://veroctaai.onrender.com/api/health
 ```
 
 ### API Documentation
-
 Visit: `https://veroctaai.onrender.com/api/docs`
+
+## 📚 Documentation
+
+- **[API Documentation](docs/API_DOCUMENTATION.md)** - Complete API reference
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Deployment instructions
+- **[Frontend Integration](docs/FRONTEND_INTEGRATION_GUIDE.md)** - Integration guide
+- **[Architecture Documentation](docs/ARCHITECTURE_DOCUMENTATION.md)** - System architecture
 
 ## 🤝 Contributing
 

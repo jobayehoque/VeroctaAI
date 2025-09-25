@@ -80,6 +80,53 @@ CREATE TABLE IF NOT EXISTS insights (
 );
 """)
         
+        print("\n-- Create Subscriptions Table --")
+        print("""
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    stripe_customer_id VARCHAR,
+    stripe_subscription_id VARCHAR,
+    plan_name VARCHAR NOT NULL,
+    status VARCHAR DEFAULT 'active',
+    current_period_start TIMESTAMP,
+    current_period_end TIMESTAMP,
+    cancel_at_period_end BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+""")
+        
+        print("\n-- Create Payments Table --")
+        print("""
+CREATE TABLE IF NOT EXISTS payments (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    subscription_id UUID REFERENCES subscriptions(id) ON DELETE CASCADE,
+    stripe_payment_intent_id VARCHAR,
+    amount INTEGER NOT NULL,
+    currency VARCHAR DEFAULT 'usd',
+    status VARCHAR DEFAULT 'pending',
+    payment_method VARCHAR,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+""")
+        
+        print("\n-- Create Email Logs Table --")
+        print("""
+CREATE TABLE IF NOT EXISTS email_logs (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    email_type VARCHAR NOT NULL,
+    recipient_email VARCHAR NOT NULL,
+    subject VARCHAR,
+    status VARCHAR DEFAULT 'sent',
+    sent_at TIMESTAMP DEFAULT NOW(),
+    error_message TEXT
+);
+""")
+        
         print("\n-- Enable Row Level Security (RLS) --")
         print("""
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
